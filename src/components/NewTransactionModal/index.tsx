@@ -5,6 +5,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { CloseButton, Content, Overlay, TransactionTypeButton, TransactionType } from './styles';
+import { useContext } from 'react';
+import { TransactionsContext } from '../../contexts/TransactionsContext';
 
 const newTransactionFormSchema = zod.object({
 	description: zod.string(),
@@ -16,8 +18,11 @@ const newTransactionFormSchema = zod.object({
 type NewTransactionFormInputs = zod.infer<typeof newTransactionFormSchema>
 
 export function NewTransactionModal() {
+	const { createTransaction } = useContext(TransactionsContext)
+
 	const { 
 		control,
+		reset,
 		register, 
 		handleSubmit,
 		formState: {isSubmitting} 
@@ -25,8 +30,17 @@ export function NewTransactionModal() {
 		resolver: zodResolver(newTransactionFormSchema),
 	})
 
-	function handleCreateNewTransaction(data: NewTransactionFormInputs) {
-		console.log(data);
+	async function handleCreateNewTransaction(data: NewTransactionFormInputs) {
+		const {category, description, price, type} = data
+
+		await createTransaction({
+			category, 
+			description,
+			price, 
+			type
+		})
+
+		reset()
 	}
 
 	return (
